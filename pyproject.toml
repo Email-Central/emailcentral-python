@@ -1,0 +1,20 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "emailcentralpy"
+version = "1.0.0"
+requires-python = ">=3.10"
+dependencies = ["requests>=2,<3"]
+readme = "README.md"
+license = "MIT"
+classifiers = [
+    "Programming Language :: Python :: 3",
+]
+
+[project.urls]
+Repository = "https://github.com/Email-Central/emailcentral-python"
+
+[tool.hatch.build.targets.wheel]
+packages = ["emailcentral"]
