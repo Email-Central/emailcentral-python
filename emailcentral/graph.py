@@ -29,6 +29,12 @@ class Message:
     date: str
 
 
+@dataclass
+class RefreshedTokens:
+    access_token: str
+    refresh_token: str
+
+
 def parse_account(raw: str) -> Account:
     parts = raw.split(":")
     if len(parts) < 4:
@@ -39,7 +45,7 @@ def parse_account(raw: str) -> Account:
     return Account(email=email, password=password, refresh_token=refresh_token, client_id=client_id)
 
 
-def exchange_token(client_id: str, refresh_token: str) -> str:
+def _request_token(client_id: str, refresh_token: str) -> dict:
     response = requests.post(
         TOKEN_URL,
         data={
@@ -50,7 +56,16 @@ def exchange_token(client_id: str, refresh_token: str) -> str:
         },
     )
     response.raise_for_status()
-    return response.json()["access_token"]
+    return response.json()
+
+
+def exchange_token(client_id: str, refresh_token: str) -> str:
+    return _request_token(client_id, refresh_token)["access_token"]
+
+
+def refresh_account_token(client_id: str, refresh_token: str) -> RefreshedTokens:
+    data = _request_token(client_id, refresh_token)
+    return RefreshedTokens(access_token=data["access_token"], refresh_token=data["refresh_token"])
 
 
 def read_inbox(access_token: str, folder: str = "inbox", limit: int = 10) -> list[Message]:

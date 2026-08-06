@@ -1,6 +1,6 @@
 import os
 
-from emailcentral import Client, exchange_token, parse_account, read_inbox
+from emailcentral import Client, exchange_token, parse_account, read_inbox, refresh_account_token
 
 
 def main():
@@ -41,6 +41,9 @@ def main():
     messages = read_inbox(access_token, folder="inbox", limit=10)
     for message in messages:
         print(message.date, message.from_, message.subject)
+
+    refreshed = refresh_account_token(account.client_id, account.refresh_token)
+    print(f"refreshed token, new refresh token starts with: {refreshed.refresh_token[:12]}...")
 
 
 if __name__ == "__main__":

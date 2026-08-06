@@ -107,6 +107,20 @@ Note: on `Message`, the sender field is named `from_` (with a trailing underscor
 
 `parse_account` splits on `:` and takes the email as the first field and the client ID as the last field; everything in between is rejoined with `:` as the refresh token, since refresh tokens can themselves contain colons. It raises `ValueError` if the string doesn't have at least 4 `:`-separated parts.
 
+### Keeping a Graph token from expiring
+
+A refresh token is valid for 90 days from when the account was created. Every exchange against Microsoft's official token endpoint issues a brand new refresh token and resets that window, so calling `refresh_account_token` periodically - even on accounts you're not actively reading mail from - keeps them alive indefinitely.
+
+```python
+from emailcentral import refresh_account_token
+
+refreshed = refresh_account_token(account.client_id, account.refresh_token)
+# refreshed.access_token can be discarded if you're just keeping the account alive
+# refreshed.refresh_token replaces the old one - the old one is now invalid
+```
+
+Run this on a schedule (daily or weekly is plenty) well before the 90-day mark for any account you're holding onto. Each exchange invalidates the refresh token that was passed in, so the value you get back must be what you use next time.
+
 ## Examples
 
 A complete, runnable script covering every method (`list_products`, `balance`, `transactions`, `orders`, `buy`, `order_items`, and the Graph flow) is in [`examples/quickstart.py`](examples/quickstart.py). It reads the API key from the `EMAILCENTRAL_API_KEY` environment variable:
